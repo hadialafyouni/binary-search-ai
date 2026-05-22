@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Binary Search AI | Optimal Guessing Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0b0f1c 0%, #010101 100%);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        @keyframes rgbPulse {
+            0% { border-color: #ff3366; box-shadow: 0 0 8px #ff3366; }
+            33% { border-color: #33ff66; box-shadow: 0 0 8px #33ff66; }
+            66% { border-color: #3366ff; box-shadow: 0 0 8px #3366ff; }
+            100% { border-color: #ff3366; box-shadow: 0 0 8px #ff3366; }
+        }
+
+        .intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #02050e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+            opacity: 1;
+        }
+
+        .intro-card {
+            background: rgba(12, 20, 35, 0.8);
+            backdrop-filter: blur(16px);
+            border-radius: 56px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            width: 90%;
+            max-width: 560px;
+            animation: rgbPulse 3s infinite;
+            border-width: 2px;
+            border-style: solid;
+        }
+
+        .intro-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #ff3366, #33ff66, #3366ff, #ff33cc);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: rgbTextShift 4s linear infinite;
+            margin-bottom: 0.5rem;
+        }
+
+        @keyframes rgbTextShift {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .madeby {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #ffdd99;
+            margin: 8px 0;
+        }
+
+        .intro-desc {
+            color: #ccddff;
+            font-size: 0.95rem;
+            margin: 20px 0;
+            line-height: 1.4;
+        }
+
+        .play-btn {
+            background: #1f2a3a;
+            border: 2px solid;
+            border-image: linear-gradient(45deg, #ff3366, #33ff66) 1;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            padding: 10px 32px;
+            border-radius: 60px;
+            cursor: pointer;
+            width: 70%;
+            transition: 0.08s linear;
+            animation: rgbPulse 2s infinite;
+        }
+
+        .play-btn:active {
+            transform: scale(0.96);
+        }
+
+        .game-container {
+            max-width: 650px;
+            width: 100%;
+            background: rgba(8, 14, 26, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            padding: 2rem;
+            border: 2px solid;
+            animation: rgbPulse 3s infinite;
+            transition: all 0.2s;
+            opacity: 0;
+            transform: scale(0.96);
+            text-align: center;
+        }
+
+        .game-container.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ff88aa, #88ffaa, #88aaff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .sub {
+            color: #bbd4ff;
+            border-left: 3px solid #ff88aa;
+            padding-left: 12px;
+            font-size: 0.8rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            text-align: center;
+            width: auto;
+        }
+
+        .ai-panel {
+            background: #030b15aa;
+            border-radius: 40px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .guess-number {
+            font-size: 4rem;
+            font-weight: 800;
+            color: #ffdd88;
+            text-shadow: 0 0 12px #ffaa33;
+            margin: 0.5rem 0;
+            text-align: center;
+        }
+
+        .feedback-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 1.2rem 0;
+        }
+
+        button {
+            background: #1a2a3f;
+            border: 1px solid #ff88aa;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.08s linear;
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        .reset-btn {
+            background: #2a3f2a;
+            border-color: #88ffaa;
+            margin-top: 0.5rem;
+        }
+
+        .status {
+            font-family: monospace;
+            color: #bbddff;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .algorithm-box {
+            background: #0a101daa;
+            border-radius: 28px;
+            padding: 1rem;
+            margin-top: 1.8rem;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #bbd4ff;
+            border-left: 3px solid #ff88aa;
+        }
+
+        footer {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- INTRO SCREEN -->
+<div id="introScreen" class="intro">
+    <div class="intro-card">
+        <div class="intro-title">BINARY SEARCH AI</div>
+        <div class="madeby">made by Hadi Afyouni</div>
+        <div class="intro-desc">
+            optimal guessing using binary search<br>
+            the AI will always find your number in at most 7 guesses
+        </div>
+        <button class="play-btn" id="startGameBtn">ENTER THE GRID</button>
+    </div>
+</div>
+
+<!-- MAIN GAME CONTAINER -->
+<div id="gameWrapper" class="game-container">
+    <h1>Binary Search AI</h1>
+    <div class="sub">optimal guessing • divide and conquer • O(log n)</div>
+
+    <div class="ai-panel">
+        <div style="color:#ffaa88;">AI's guess</div>
+        <div class="guess-number" id="guessDisplay">50</div>
+        <div class="feedback-buttons">
+            <button id="tooLowBtn">Too Low</button>
+            <button id="correctBtn">Correct</button>
+            <button id="tooHighBtn">Too High</button>
+        </div>
+        <div class="status" id="statusMsg">Think of a number between 1 and 100. AI will guess it.</div>
+    </div>
+
+    <button id="resetBtn" class="reset-btn">New Game</button>
+
+    <div class="algorithm-box">
+        <strong>Algorithmic depth</strong><br>
+        The AI performs a binary search: it maintains a low and high boundary, then guesses the midpoint. Each guess eliminates half of the remaining numbers. This guarantees finding the number in at most log2(100) = 7 guesses. The same principle powers search trees and database indexing.
+    </div>
+</div>
+
+<script>
+    // ---------- BINARY SEARCH AI GAME ----------
+    let low = 1;
+    let high = 100;
+    let guesses = 0;
+    let gameActive = true;
+    let currentGuess = 50;
+
+    const guessDisplay = document.getElementById('guessDisplay');
+    const statusMsg = document.getElementById('statusMsg');
+
+    function updateGuess() {
+        if (!gameActive) return;
+        currentGuess = Math.floor((low + high) / 2);
+        guessDisplay.textContent = currentGuess;
+    }
+
+    function tooLow() {
+        if (!gameActive) return;
+        if (low > high) {
+            statusMsg.textContent = "Error: no numbers left. Press New Game.";
+            gameActive = false;
+            return;
+        }
+        low = currentGuess + 1;
+        guesses++;
+        if (low > high) {
+            statusMsg.textContent = "Impossible. You may have changed your number. Press New Game.";
+            gameActive = false;
+            return;
+        }
+        updateGuess();
+        statusMsg.textContent = `Guesses: ${guesses} | Range ${low} – ${high}`;
+        if (low === high) {
+            guessDisplay.textContent = low;
+            statusMsg.textContent = `Only one possibility left. Is it ${low}? Click "Correct" if yes.`;
+        }
+    }
+
+    function tooHigh() {
+        if (!gameActive) return;
+        if (low > high) {
+            statusMsg.textContent = "Error: no numbers left. Press New Game.";
+            gameActive = false;
+            return;
+        }
+        high = currentGuess - 1;
+        guesses++;
+        if (low > high) {
+            statusMsg.textContent = "Impossible. Press New Game.";
+            gameActive = false;
+            return;
+        }
+        updateGuess();
+        statusMsg.textContent = `Guesses: ${guesses} | Range ${low} – ${high}`;
+        if (low === high) {
+            guessDisplay.textContent = low;
+            statusMsg.textContent = `Only one possibility left. Is it ${low}? Click "Correct" if yes.`;
+        }
+    }
+
+    function correct() {
+        if (!gameActive) return;
+        guesses++;
+        statusMsg.innerHTML = `AI guessed ${currentGuess} correctly in ${guesses} guesses. Press New Game to play again.`;
+        gameActive = false;
+    }
+
+    function resetGame() {
+        low = 1;
+        high = 100;
+        guesses = 0;
+        gameActive = true;
+        updateGuess();
+        statusMsg.innerHTML = `Think of a number between 1 and 100. AI will guess it.`;
+    }
+
+    document.getElementById('tooLowBtn').addEventListener('click', tooLow);
+    document.getElementById('tooHighBtn').addEventListener('click', tooHigh);
+    document.getElementById('correctBtn').addEventListener('click', correct);
+    document.getElementById('resetBtn').addEventListener('click', resetGame);
+
+    updateGuess();
+    statusMsg.innerHTML = `Think of a number between 1 and 100. AI will guess it.`;
+
+    // Intro handler
+    const introDiv = document.getElementById('introScreen');
+    const gameWrap = document.getElementById('gameWrapper');
+    const startBtn = document.getElementById('startGameBtn');
+
+    startBtn.addEventListener('click', () => {
+        introDiv.style.opacity = '0';
+        setTimeout(() => {
+            introDiv.style.display = 'none';
+            gameWrap.classList.add('active');
+        }, 450);
+    });
+</script>
+</body>
+</html>
